@@ -1,24 +1,29 @@
-import discord
-from discord.ext import commands
 import os
-from etc.config import OWNER, TOKEN, PREFIX, GAME
+from pathlib import Path
 
-bot = commands.Bot(command_prefix=PREFIX, owner_id=OWNER, help_command=None)
+import nextcord
+from nextcord.ext import commands
 
-for filename in os.listdir("Cogs"):
-    if filename.endswith(".py"):
-        bot.load_extension(f"Cogs.{filename[:-3]}")
-bot.remove_command('Example')
+from etc.config import OWNER, TOKEN, PREFIX, activity_name, activity_type
+
+client = commands.Bot(command_prefix=PREFIX, owner_id=OWNER, help_command=None)
+cwd = Path(__file__).parents[0]
+
+if __name__ == "__main__":
+    for filename in os.listdir(str(cwd) + "/Cogs"):
+        if filename.endswith(".py") and not filename.startswith("_"):
+            client.load_extension(f"cogs.{filename[:-3]}")
+client.remove_command('example')
 
 
-@bot.event
+@client.event
 async def on_ready():
     print('=====================')
-    print(bot.user.name)
-    print(bot.user.id)
+    print(client.user.name)
+    print(client.user.id)
     print('=====================')
-    game = discord.Game(GAME)
-    await bot.change_presence(status=discord.Status.online, activity=game)
+    activity = nextcord.Game(activity_name)
+    await client.change_presence(status=activity_type, activity=activity)
 
 
-bot.run(TOKEN)
+client.run(TOKEN)

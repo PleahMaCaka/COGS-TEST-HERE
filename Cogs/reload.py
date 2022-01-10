@@ -1,24 +1,25 @@
 import os
 
-from discord.ext import commands
-from discord.ext.commands import bot
-from discord.ext.commands.core import is_owner
+from nextcord.ext import commands
+from nextcord.ext.commands.core import is_owner
+
+from main import client, cwd
 
 
-class ReloadCogs(commands.Cog):
+class ReloadCog(commands.Cog):
 
-    def __init__(self, app):
-        self.app = app
+    def __init__(self, bot):
+        self.app = bot
 
-    @commands.command(name="reload", aliases=["리로드"])
+    @commands.command(name="reload", aliases=["rd"])
     @is_owner()
-    async def _reload(self, ctx, args1=False):
-        for filename in os.listdir("Cogs"):
-            if filename.endswith(".py"):
-                bot.reload_extension(f"Cogs.{filename[:-3]}")
-                print(f"[RELOAD] {filename}")
-        await ctx.send("모든 명령어를 다시 불러왔습니다.")
+    async def _reload(self, ctx):
+        for filename in os.listdir(str(cwd) + "/Cogs"):
+            if filename.endswith(".py") and not filename.startswith("_"):
+                client.load_extension(f"cogs.{filename[:-3]}")
+        client.remove_command('example')
+        await ctx.reply("Cogs Reload Complete!")
 
 
-def setup(app):
-    app.add_cog(ReloadCogs(app))
+def setup(bot):
+    bot.add_cog(ReloadCog(bot))
